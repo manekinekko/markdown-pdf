@@ -112,15 +112,6 @@ function markdownpdf (opts) {
           , opts.loadTimeout
         ]
 
-        // var watcher = childProcess.spawn(opts.phantomPath, childArgs);
-        // watcher.stdout.on('end', function(){
-        //   fs.createReadStream(tmpPdfPath).pipe(outputStream)
-        // })
-        // watcher.on('error', function(error){ 
-        //   console.error(error);
-        //   outputStream.emit("error", error) 
-        // })
-
         childProcess.execFile(opts.phantomPath, childArgs, function (er, stdout, stderr) {
           //if (stdout) console.log(stdout)
           //if (stderr) console.error(stderr)

@@ -24,22 +24,19 @@ if(args.layout && args.layout !== 'null'){
 
 args.in = fs.read(args.in);
 
-// var toc = args.in.toString().match(/(<!--toc-->)([\w\W]+)(<!--endtoc-->)/);
 var html = fs.read(layout)
   .replace("{{baseUrl}}", baseUrl)
   .replace("{{content}}", args.in)
 
+  // support "markdown-styles" layout variables
   .replace("{{ repoUrl }}", baseUrl)
   .replace("{{~> content}}", args.in)
   .replace("{{~> toc}}", "")
-  .replace("<!--toc-->", "")
-  .replace("<!--endtoc-->", "")
   .replace(/\{\{asset '(.*)'\}\}/g, baseUrl+'assets/$1')
-  .replace(/\{\{ imagePath \}\}/g, (protocol + args.cwd))
+  .replace(/<img src="\./g, '<img src="'+(protocol + args.cwd))
 
 page.setContent(html, baseUrl)
 fs.write('/tmp/readme.html', page.content, 'w')
-
 
 // Add custom CSS to the page
 page.evaluate(function (cssPaths) {
