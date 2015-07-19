@@ -32,6 +32,16 @@ markdownpdf().from("/path/to/document.md").to("/path/to/document.pdf", function 
 
 Pass an options object (`markdownpdf({/* options */})`) to configure the output.
 
+##### Note
+
+This fork adds the ability to pass an optional ```layout``` to be able to choose a layout from the markdown-styles module. See [the markdown-styles repo](https://github.com/mixu/markdown-styles) for more details.
+
+#### options.layout
+Type: `String`  
+Default value: `html5bp`
+
+The layout to use from the [the markdown-styles module](https://github.com/mixu/markdown-styles#quickstart). If the option is not used, the default `html5bp` will be used, as normal (for backward compatibility).
+
 #### options.cwd
 Type: `String`  
 Default value: `process.cwd()`
