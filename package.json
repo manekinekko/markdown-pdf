@@ -30,6 +30,7 @@
     "duplexer": "^0.1.1",
     "extend": "^2.0.0",
     "highlight.js": "^8.4.0",
+    "markdown-styles": "^2.4.0",
     "phantomjs": "^1.9.13",
     "remarkable": "^1.6.0",
     "stream-from-to": "^1.4.2",

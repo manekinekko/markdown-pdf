@@ -3,22 +3,43 @@ var system = require("system")
   , fs = require("fs")
   , os = require("system").os
 
+
 // Read in arguments
-var args = ["in", "out", "cwd", "runningsPath", "cssPath", "highlightCssPath", "paperFormat", "paperOrientation", "paperBorder", "renderDelay", "loadTimeout"].reduce(function (args, name, i) {
+var args = ["in", "out", "layout", "cwd", "runningsPath", "cssPath", "highlightCssPath", "paperFormat", "paperOrientation", "paperBorder", "renderDelay", "loadTimeout"].reduce(function (args, name, i) {
   args[name] = system.args[i + 1]
   return args
 }, {})
 
-var html5bpPath = page.libraryPath + "/../html5bp"
-
 // Resources don't load in windows with file protocol
 var protocol = os.name == "windows" ? "" : "file://"
 
-var html = fs.read(html5bpPath + "/index.html")
-  .replace(/\{\{baseUrl\}\}/g, protocol + html5bpPath)
-  .replace("{{content}}", fs.read(args.in))
+var layout = page.libraryPath + "/../html5bp/index.html"
+var baseUrl = protocol + page.libraryPath + "/../html5bp/"
 
-page.setContent(html, protocol + args.cwd + "/markdown-pdf.html")
+
+if(args.layout && args.layout !== 'null'){
+  layout = args.layout + "/page.html"
+  baseUrl = protocol + args.layout + '/'
+}
+
+args.in = fs.read(args.in);
+
+// var toc = args.in.toString().match(/(<!--toc-->)([\w\W]+)(<!--endtoc-->)/);
+var html = fs.read(layout)
+  .replace("{{baseUrl}}", baseUrl)
+  .replace("{{content}}", args.in)
+
+  .replace("{{ repoUrl }}", baseUrl)
+  .replace("{{~> content}}", args.in)
+  .replace("{{~> toc}}", "")
+  .replace("<!--toc-->", "")
+  .replace("<!--endtoc-->", "")
+  .replace(/\{\{asset '(.*)'\}\}/g, baseUrl+'assets/$1')
+  .replace(/\{\{ imagePath \}\}/g, (protocol + args.cwd))
+
+page.setContent(html, baseUrl)
+fs.write('/tmp/readme.html', page.content, 'w')
+
 
 // Add custom CSS to the page
 page.evaluate(function (cssPaths) {

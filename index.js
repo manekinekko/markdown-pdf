@@ -12,7 +12,15 @@ var fs = require("fs")
 tmp.setGracefulCleanup()
 
 function markdownpdf (opts) {
+
+  var layoutFolder = './node_modules/markdown-styles/layouts/'
   opts = opts || {}
+
+  opts.layout = opts.layout || null;
+  if(opts.layout && path.isAbsolute(opts.layout) === false){
+    opts.layout = path.resolve(layoutFolder + '/' + opts.layout)
+  }
+
   opts.cwd = opts.cwd ? path.resolve(opts.cwd) : process.cwd()
   opts.phantomPath = opts.phantomPath || require("phantomjs").path
   opts.runningsPath = opts.runningsPath ? path.resolve(opts.runningsPath) : path.join(__dirname, "runnings.js")
@@ -27,6 +35,7 @@ function markdownpdf (opts) {
   opts.preProcessHtml = opts.preProcessHtml || function () { return through() }
   opts.remarkable = opts.remarkable || {}
   opts.remarkable.plugins = opts.remarkable.plugins || []
+
 
   var md = ""
 
@@ -85,11 +94,13 @@ function markdownpdf (opts) {
       var htmlToTmpHtmlFile = fs.createWriteStream(tmpHtmlPath)
 
       htmlToTmpHtmlFile.on("finish", function () {
+        
         // Invoke phantom to generate the PDF
         var childArgs = [
             path.join(__dirname, "phantom", "render.js")
           , tmpHtmlPath
           , tmpPdfPath
+          , opts.layout
           , opts.cwd
           , opts.runningsPath
           , opts.cssPath
@@ -101,12 +112,22 @@ function markdownpdf (opts) {
           , opts.loadTimeout
         ]
 
+        // var watcher = childProcess.spawn(opts.phantomPath, childArgs);
+        // watcher.stdout.on('end', function(){
+        //   fs.createReadStream(tmpPdfPath).pipe(outputStream)
+        // })
+        // watcher.on('error', function(error){ 
+        //   console.error(error);
+        //   outputStream.emit("error", error) 
+        // })
+
         childProcess.execFile(opts.phantomPath, childArgs, function (er, stdout, stderr) {
           //if (stdout) console.log(stdout)
           //if (stderr) console.error(stderr)
           if (er) return outputStream.emit("error", er)
           fs.createReadStream(tmpPdfPath).pipe(outputStream)
         })
+
       })
 
       // Setup the pipeline
